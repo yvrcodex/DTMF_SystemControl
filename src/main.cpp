@@ -7,6 +7,8 @@
 #define MYUBRR F_CPU / 16 / BAUD - 1
 
 // INICIAR COMUNICAÇÃO SERIAL VIA REGISTER UBBR
+int x = 1;
+
 void USART_Init(unsigned int ubrr)
 {
     UBRR0H = (unsigned char)(ubrr >> 8);
@@ -42,12 +44,24 @@ void printDTMF(char key, const char *tone)
 
 int main(void)
 {
-    DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7)); // Configura os pinos D3 a D7 como entrada
+    // ///DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7));Configura os pinos D3 a D7 como entrada
+
+    DDRD &= 0xF8; // Configura os pinos D3 até D7 como entrada
+    DDRB &= 0xFE; // Configura o pino 8 (PB0) como entrada
+
     USART_Init(MYUBRR);
 
     while (1)
     {
         uint8_t number;
+
+        // Verifica se o pino 8 (PB0) está em nível alto (HIGH)
+        if (PINB & (1 << PINB0))
+        {
+            // Se estiver em nível alto, sai do loop
+            USART_Println("Sequência de tons encerrada");
+            break;
+        }
 
         bool signal = PIND & (1 << PIND7); // leitura pino D7
 
