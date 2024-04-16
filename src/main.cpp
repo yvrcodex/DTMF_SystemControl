@@ -44,7 +44,11 @@ void printDTMF(char key, const char *tone)
 
 int main(void)
 {
-    DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7)); // Configura os pinos D3 a D7 como entrada
+    // ///DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7));Configura os pinos D3 a D7 como entrada
+
+    DDRD &= 0xF8; // Configura os pinos D3 até D7 como entrada
+    DDRB &= 0xFE; // Configura o pino 8 (PB0) como entrada
+
     USART_Init(MYUBRR);
 
     while (1)
