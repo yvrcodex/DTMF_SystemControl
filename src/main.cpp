@@ -7,8 +7,6 @@
 #define MYUBRR F_CPU / 16 / BAUD - 1
 
 // INICIAR COMUNICAÇÃO SERIAL VIA REGISTER UBBR
-int x = 1;
-
 void USART_Init(unsigned int ubrr)
 {
     UBRR0H = (unsigned char)(ubrr >> 8);

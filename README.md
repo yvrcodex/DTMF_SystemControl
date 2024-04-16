@@ -11,20 +11,20 @@
 
 # Table of Contents
 
-* PLACE HOLDER  INITIAL
+<!--PLACE HOLDER [ MODIFICANÇÃO EM ANDAMENTO] 
+-->
 
 1. [Introduction](#introduction)
 2. [Workflow](#workflow)
-3. [Resources](#resources)
-4. [Features](#features)
-5. [Requirements](#requirements)
-6. [Installation](#installation)
-7. [Usage](#usage)
+3. [Features](#features)
+4. [Requirements](#requirements)
+5. [Datasheets](docs/datasheets/)
+
+<!--7. [Usage](#usage)
 8. [Contributors](#contributors)
 9. [License](#license)
 10. [Acknowledgements](#acknowledgements)
-11. [Support](#support)
-
+11. [Support](#support) -->
 ## Introduction
 
 The DTMF System Control project focuses on utilizing DTMF (Dual-Tone Multi-Frequency) modules for remote system control via audio. The project aims to enable users to remotely control devices, such as relays, using DTMF tones generated through audio input.
@@ -32,11 +32,6 @@ The DTMF System Control project focuses on utilizing DTMF (Dual-Tone Multi-Frequ
 ## Workflow
 
 Here you can place the description, instructions, or any relevant information about the workflow of your project. This might include an explanation of how the DTMF modules are integrated with the Arduino, how to set up and configure the system, testing procedures, etc.
-
-## Resources
-
-- [Datasheets](docs/datasheets/README.md): Links to datasheets for the DTMF module, Arduino, and any other relevant components.
-- [Guides](docs/guides/README.md): Tutorials and guides for setting up and using the DTMF System Control.
 
 ## Features
 
@@ -48,7 +43,7 @@ Here you can place the description, instructions, or any relevant information ab
 ## Requirements
 
 - **Hardware:** DTMF module, Arduino (e.g., ATmega328P), audio input/output device.
-- **Software:** Arduino IDE, libraries for DTMF decoding.
+- **Software:** Arduino IDE, VSCode (PlatformIO), libraries for DTMF decoding.
 
 ## Installation
 
