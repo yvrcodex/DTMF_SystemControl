@@ -8,10 +8,6 @@
 #define MAX_SEQUENCE_LENGTH 20 // Defina o tamanho máximo da sequência de tons
 
 // INICIAR COMUNICAÇÃO SERIAL VIA REGISTER UBBR
-<<<<<<< HEAD
-=======
-int x = 1;
->>>>>>> main
 
 void USART_Init(unsigned int ubrr)
 {
@@ -49,20 +45,14 @@ void printDTMF(char key, const char *tone)
 
 int main(void)
 {
-<<<<<<< HEAD
 
     char sequence[MAX_SEQUENCE_LENGTH]; // Array para armazenar a sequência de tons
     int sequence_length = 0;            // Variável para rastrear o comprimento atual da sequência
-=======
->>>>>>> main
     // ///DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7));Configura os pinos D3 a D7 como entrada
 
     DDRD &= 0xF8; // Configura os pinos D3 até D7 como entrada
     DDRB &= 0xFE; // Configura o pino 8 (PB0) como entrada
-<<<<<<< HEAD
     PORTB &= 0xFE; // Garante que o pino PB0 (bit 0) esteja em estado LOW
-=======
->>>>>>> main
 
     USART_Init(MYUBRR);
 
