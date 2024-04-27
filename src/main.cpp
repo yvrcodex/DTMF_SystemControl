@@ -143,7 +143,7 @@ int main(void)
                     printDTMF('0', "941 Hz e 1336 Hz");
                     break;
 
-                case 0x0B: // b1011
+                case 0x0B: // b1011about:blank#blocked
 
                     printDTMF('*', "941 Hz e 1209 Hz");
                     break;
