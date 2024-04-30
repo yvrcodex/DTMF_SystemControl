@@ -31,37 +31,49 @@ int main(void)
     USART_Init(MYUBRR); // Inicializa a comunicação serial
 
     DDRD &= 0xF8;  // Configura os pinos D3 até D7 como entrada
-    DDRB &= 0xFE;  // Configura o pino 8 (PB0) como entrada
-    PORTB &= 0xFE; // Garante que o pino PB0 (bit 0) esteja em estado LOW
+    DDRB = 0xF7;  // Para os pinos 9, 10 e 11 como saída, e o pino 8 como entrada
+    PORTB = 0x00; // Define os pinos 8, 9 e 10 em LOW
+
+    USART_Println("\nREADING TONE...");
 
     while (1)
-    {
-        bool signal = PIND & (1 << PIND7); // Lê o estado do pino D7
-
+    {   
+        _delay_ms(10);
         if (PINB & (1 << PINB0)) // Verifica o estado do pino 8 (PB0)
+
         {
+            
             // Se o botão estiver pressionado, verifica se a sequência de tons corresponde a alguma senha
             if (check_password(password1))
             {
                 USART_Println("\nativando relé 1"); // Ativa o relé 1 se a senha for correspondida
+
+                PORTB |= (1 << PB1); // Define o pino 9 (PB1) como HIGH, mantendo os outros pinos inalterados
             }
             else if (check_password(password2))
             {
                 USART_Println("\nativando relé 2"); // Ativa o relé 2 se a senha for correspondida
+                PORTB |= (1 << PB2);                // Define o pino 10 como HIGH, mantendo os outros pinos inalterados
             }
             else if (check_password(password3))
             {
                 USART_Println("\nativando relé 3"); // Ativa o relé 3 se a senha for correspondida
+                PORTB |= (1 << PB3);                // Define o pino 11 como HIGH, mantendo os outros pinos inalterados
             }
             else
             {
                 USART_Println("\nINVALID PASSWORD..."); // Imprime mensagem de senha inválida
             }
+
+            PORTB &= ~((1 << PB1) | (1 << PB2) | (1 << PB3)); // Define os pinos 9, 10 e 11 como LOW, mantendo os outros pinos inalterados
+
             sequence_length = 0; // Reseta a sequência
-            _delay_ms(500);      // Aguarda 500ms antes de ler uma nova sequência
+            _delay_ms(20);      // Aguarda antes de ler uma nova sequência
         }
         else
         {
+            bool signal = PIND & (1 << PIND7); // Lê o estado do pino D7
+            _delay_ms(20);
             if (signal) // Se um sinal for detectado no pino D7
             {
                 _delay_ms(100);              // Aguarda 100ms para evitar debouncing
@@ -106,7 +118,8 @@ void USART_Init(unsigned int ubrr)
 // Transmite um byte via comunicação serial
 void USART_Transmit(unsigned char data)
 {
-    while (!(UCSR0A & (1 << UDRE0)));        // Aguarda o buffer de transmissão estar vazio
+    while (!(UCSR0A & (1 << UDRE0)))
+        ;        // Aguarda o buffer de transmissão estar vazio
     UDR0 = data; // Transmite o byte
 }
 
