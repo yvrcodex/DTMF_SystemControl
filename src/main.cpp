@@ -16,7 +16,7 @@ uint8_t keyword = 0;               // Variável para determinar qual senha foi c
 
 // -------------- PASSWORDS ---------------------------
 uint8_t password1[] = {0x00, 0x00, 0x00}; // Primeira senha
-uint8_t password2[] = {0, 0, 0};          // Segunda senha
+uint8_t password2[] = {8, 8, 8};          // Segunda senha
 uint8_t password3[] = {2, 2, 3};          // Terceira senha
 
 // ============= DECLARAÇÃO PROTOTIPOS ===============
@@ -38,10 +38,11 @@ int main(void)
 
     while (1)
     {   
-        _delay_ms(10);
+       
         if (PINB & (1 << PINB0)) // Verifica o estado do pino 8 (PB0)
 
         {
+             _delay_ms(10);
             
             // Se o botão estiver pressionado, verifica se a sequência de tons corresponde a alguma senha
             if (check_password(password1))
@@ -59,12 +60,13 @@ int main(void)
             {
                 USART_Println("\nativando relé 3"); // Ativa o relé 3 se a senha for correspondida
                 PORTB |= (1 << PB3);                // Define o pino 11 como HIGH, mantendo os outros pinos inalterados
+                
             }
             else
             {
                 USART_Println("\nINVALID PASSWORD..."); // Imprime mensagem de senha inválida
             }
-
+            _delay_ms(5000);
             PORTB &= ~((1 << PB1) | (1 << PB2) | (1 << PB3)); // Define os pinos 9, 10 e 11 como LOW, mantendo os outros pinos inalterados
 
             sequence_length = 0; // Reseta a sequência
