@@ -1,14 +1,100 @@
-// include PlatformIO extension VSCODE
+// ============== LIBRARIES ========================
 #include <Arduino.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
+// ============== DEFINIÇÃO CONSTANTE ============
 #define BAUD 9600
 #define MYUBRR F_CPU / 16 / BAUD - 1
-#define MAX_SEQUENCE_LENGTH 20 // Defina o tamanho máximo da sequência de tons
+#define MAX_SEQUENCE_LENGTH 20
 
-// INICIAR COMUNICAÇÃO SERIAL VIA REGISTER UBBR
+// ============== VARIAVEIS GLOBAL ===================
+uint8_t read[MAX_SEQUENCE_LENGTH]; // Array para armazenar a sequência de tons
+uint8_t sequence_length = 0;       // Variável para rastrear o comprimento atual da sequência
+uint8_t number;                    // Variável para armazenar o número do tom recebido
+uint8_t keyword = 0;               // Variável para determinar qual senha foi correspondida
 
+// -------------- PASSWORDS ---------------------------
+uint8_t password1[] = {0x00, 0x00, 0x00}; // Primeira senha
+uint8_t password2[] = {0, 0, 0};          // Segunda senha
+uint8_t password3[] = {2, 2, 3};          // Terceira senha
+
+// ============= DECLARAÇÃO PROTOTIPOS ===============
+void USART_Init(unsigned int ubrr);      // Inicializa a comunicação serial
+void USART_Transmit(unsigned char data); // Transmite dados via comunicação serial
+void USART_Println(const char *s);       // Imprime uma string seguida de nova linha
+bool check_password(uint8_t *password);  // Verifica se a sequência de tons corresponde a uma senha
+
+// ================= MAIN ============================
+int main(void)
+{
+    USART_Init(MYUBRR); // Inicializa a comunicação serial
+
+    DDRD &= 0xF8;  // Configura os pinos D3 até D7 como entrada
+    DDRB &= 0xFE;  // Configura o pino 8 (PB0) como entrada
+    PORTB &= 0xFE; // Garante que o pino PB0 (bit 0) esteja em estado LOW
+
+    while (1)
+    {
+        bool signal = PIND & (1 << PIND7); // Lê o estado do pino D7
+
+        if (PINB & (1 << PINB0)) // Verifica o estado do pino 8 (PB0)
+        {
+            // Se o botão estiver pressionado, verifica se a sequência de tons corresponde a alguma senha
+            if (check_password(password1))
+            {
+                USART_Println("\nativando relé 1"); // Ativa o relé 1 se a senha for correspondida
+            }
+            else if (check_password(password2))
+            {
+                USART_Println("\nativando relé 2"); // Ativa o relé 2 se a senha for correspondida
+            }
+            else if (check_password(password3))
+            {
+                USART_Println("\nativando relé 3"); // Ativa o relé 3 se a senha for correspondida
+            }
+            else
+            {
+                USART_Println("\nINVALID PASSWORD..."); // Imprime mensagem de senha inválida
+            }
+            sequence_length = 0; // Reseta a sequência
+            _delay_ms(500);      // Aguarda 500ms antes de ler uma nova sequência
+        }
+        else
+        {
+            if (signal) // Se um sinal for detectado no pino D7
+            {
+                _delay_ms(100);              // Aguarda 100ms para evitar debouncing
+                number = (PIND & 0x78) >> 3; // Lê o número do tom dos pinos D3 a D6
+
+                if (sequence_length < MAX_SEQUENCE_LENGTH)
+                {
+                    read[sequence_length++] = number; // Adiciona o tom à sequência
+                }
+
+                USART_Transmit(number + '0'); // Imprime o número do tom recebido
+                USART_Transmit('\n');         // Imprime uma nova linha
+            }
+        } // FIM ELSE
+    } // FIM WHILE
+
+    return 0;
+} // FIM MAIN
+
+// ################# SUB ROTINAS ###########################
+
+// Função para verificar se a sequência de tons corresponde a uma senha
+bool check_password(uint8_t *password)
+{
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        if (read[i] != password[i]) // Verifica cada elemento da sequência com a senha
+            return false;           // Se houver uma diferença, retorna falso
+    }
+    return true; // Se a sequência corresponder à senha, retorna verdadeiro
+}
+
+// Inicializa a comunicação serial
 void USART_Init(unsigned int ubrr)
 {
     UBRR0H = (unsigned char)(ubrr >> 8);
@@ -17,151 +103,20 @@ void USART_Init(unsigned int ubrr)
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
+// Transmite um byte via comunicação serial
 void USART_Transmit(unsigned char data)
 {
-    while (!(UCSR0A & (1 << UDRE0)))
-        ;
-    UDR0 = data;
+    while (!(UCSR0A & (1 << UDRE0)));        // Aguarda o buffer de transmissão estar vazio
+    UDR0 = data; // Transmite o byte
 }
 
+// Imprime uma string seguida de nova linha via comunicação serial
 void USART_Println(const char *s)
 {
     while (*s)
     {
-        USART_Transmit(*s++);
+        USART_Transmit(*s++); // Transmite cada caractere da string
     }
-    USART_Transmit('\r');
-    USART_Transmit('\n');
+    USART_Transmit('\r'); // Transmite o caractere de retorno de carro (CR)
+    USART_Transmit('\n'); // Transmite o caractere de nova linha (LF)
 }
-
-//  FUNÇÕES
-
-void printDTMF(char key, const char *tone)
-{
-    char buffer[50];
-    sprintf(buffer, "Tecla: %c, Tons DTMF: %s", key, tone);
-    USART_Println(buffer);
-}
-
-int main(void)
-{
-
-    char sequence[MAX_SEQUENCE_LENGTH]; // Array para armazenar a sequência de tons
-    int sequence_length = 0;            // Variável para rastrear o comprimento atual da sequência
-    // ///DDRD &= ~((1 << DDD3) | (1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7));Configura os pinos D3 a D7 como entrada
-
-    DDRD &= 0xF8; // Configura os pinos D3 até D7 como entrada
-    DDRB &= 0xFE; // Configura o pino 8 (PB0) como entrada
-    PORTB &= 0xFE; // Garante que o pino PB0 (bit 0) esteja em estado LOW
-
-    USART_Init(MYUBRR);
-
-
-    USART_Println("\nDUAL-TONE MULTI-FREQUENCY SYSTEM CONTROL");
-    USART_Println("========================================\n");
-    while (1)
-    {
-        uint8_t number;
-
-        // Verifica se o pino 8 (PB0) está em nível alto (HIGH)
-        if (PINB & (1 << PINB0))
-        {
-            // Se estiver em nível alto, imprime a sequência armazenada e encerra o loop
-            USART_Println("\nSEQUENCIA DUAL TONE RECEBIDA");
-            USART_Println("----------------------------");
-            USART_Transmit('[');
-
-
-            for (int i = 0; i < sequence_length; i++)
-            {
-                USART_Transmit(' ');
-                USART_Transmit(sequence[i] + '0');
-            }
-            USART_Transmit(' ');
-            USART_Println("]\n");
-            break;
-            
-        }
-        else
-        {
-
-            bool signal = PIND & (1 << PIND7); // leitura pino D7
-            if (signal)
-            {
-                _delay_ms(200);                // Delay para debouncing
-                number = (PIND & 0x78) >> 3; // leitura dos  pinos D3 a D6 e ajusta a posição dos bits
-
-                switch (number)
-                {
-
-                case 0x01: // b0001
-
-                    printDTMF('1', "697 Hz e 1209 Hz");
-
-                    break;
-
-                case 0x02: // b0010
-
-                    printDTMF('2', "697 Hz e 1336 Hz");
-                    break;
-
-                case 0x03: // b0011
-                    printDTMF('3', "697 Hz e 1477 Hz");
-                    break;
-
-                case 0x04: // b0100
-
-                    printDTMF('4', "770 Hz e 1209 Hz");
-                    break;
-
-                case 0x05: // b0101
-
-                    printDTMF('5', "770 Hz e 1336 Hz");
-                    break;
-
-                case 0x06: // b0110
-
-                    printDTMF('6', "770 Hz e 1477 Hz");
-                    break;
-
-                case 0x07: // b0111
-
-                    printDTMF('7', "852 Hz e 1209 Hz");
-                    break;
-
-                case 0x08: // b1000
-                    printDTMF('8', "852 Hz e 1336 Hz");
-                    break;
-
-                case 0x09: // b1001
-
-                    printDTMF('9', "852 Hz e 1477 Hz");
-                    break;
-
-                case 0x0A: // b1010
-
-                    printDTMF('0', "941 Hz e 1336 Hz");
-                    break;
-
-                case 0x0B: // b1011about:blank#blocked
-
-                    printDTMF('*', "941 Hz e 1209 Hz");
-                    break;
-
-                case 0x0C: // b1100
-                    printDTMF('#', "941 Hz e 1477 Hz");
-                    break;
-
-                default:
-                    break;
-                }
-
-                // Adiciona o tom ao array
-                sequence[sequence_length++] = number;
-            }
-        }
-    }
-    return 0;
-}
-
-/* Implementação bateria de teste. Comparação de saidas */
