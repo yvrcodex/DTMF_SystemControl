@@ -31,7 +31,7 @@ The DTMF System Control project focuses on utilizing DTMF (Dual-Tone Multi-Frequ
 
 ## Workflow
 
-Here you can place the description, instructions, or any relevant information about the workflow of your project. This might include an explanation of how the DTMF modules are integrated with the Arduino, how to set up and configure the system, testing procedures, etc.
+relevant information about the workflow of your project. This might include an explanation of how the DTMF modules are integrated with the Arduino, how to set up and configure the system, testing procedures, etc.
 
 ## Features
 
