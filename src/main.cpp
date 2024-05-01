@@ -1,8 +1,10 @@
 // ============== LIBRARIES ========================
+// ============== LIBRARIES ========================
 #include <Arduino.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
+// ============== DEFINIÇÃO CONSTANTE ============
 // ============== DEFINIÇÃO CONSTANTE ============
 #define BAUD 9600
 #define MYUBRR F_CPU / 16 / BAUD - 1
@@ -121,13 +123,17 @@ void USART_Init(unsigned int ubrr)
 }
 
 // Transmite um byte via comunicação serial
+// Transmite um byte via comunicação serial
 void USART_Transmit(unsigned char data)
 {
     while (!(UCSR0A & (1 << UDRE0)))
         ;        // Aguarda o buffer de transmissão estar vazio
     UDR0 = data; // Transmite o byte
+        ;        // Aguarda o buffer de transmissão estar vazio
+    UDR0 = data; // Transmite o byte
 }
 
+// Imprime uma string seguida de nova linha via comunicação serial
 // Imprime uma string seguida de nova linha via comunicação serial
 void USART_Println(const char *s)
 {
