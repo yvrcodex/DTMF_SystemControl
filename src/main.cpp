@@ -1,9 +1,10 @@
 // ============== LIBRARIES ========================
-#include <Arduino.h>
+#include <Arduino.h> // Incluir somente se tiver usando PlatformIO
 #include <avr/io.h>
 #include <util/delay.h>
 
 // ============== DEFINIÇÃO CONSTANTE ============
+
 #define BAUD 9600
 #define MYUBRR F_CPU / 16 / BAUD - 1
 #define MAX_SEQUENCE_LENGTH 20
@@ -24,6 +25,7 @@ void USART_Init(unsigned int ubrr);      // Inicializa a comunicação serial
 void USART_Transmit(unsigned char data); // Transmite dados via comunicação serial
 void USART_Println(const char *s);       // Imprime uma string seguida de nova linha
 bool check_password(uint8_t *password);  // Verifica se a sequência de tons corresponde a uma senha
+
 
 // ================= MAIN ============================
 int main(void)
@@ -94,7 +96,7 @@ int main(void)
     return 0;
 } // FIM MAIN
 
-// ################# SUB ROTINAS ###########################
+//============= SUB ROTINAS ======================
 
 // Função para verificar se a sequência de tons corresponde a uma senha
 bool check_password(uint8_t *password)
