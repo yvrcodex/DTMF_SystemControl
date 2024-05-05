@@ -19,6 +19,7 @@
 3. [Features](#features)
 4. [Requirements](#requirements)
 5. [Datasheets](docs/datasheets/)
+6. [Reference Materials](docs/reference-materials/)
 
 <!--7. [Usage](#usage)
 8. [Contributors](#contributors)
