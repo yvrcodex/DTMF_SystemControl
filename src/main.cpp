@@ -29,10 +29,10 @@ uint8_t keyword;
 
 // ============ PASSWORD PARA ATIVAÇÃO ============================
 
-DTMF password_A1[] = {DTMF_1, DTMF_0, DTMF_8};                 // ATIVAÇÃO RELÉ A1
-DTMF password_A2[] = {DTMF_5, DTMF_ASTERISK, DTMF_3};          // ATIVAÇÃO RELÉ A2
-DTMF password_A3[] = {DTMF_7, DTMF_HASH, DTMF_A};              // ATIVAÇÃO RELÉ A3
-DTMF password_A4[] = {DTMF_B, DTMF_C, DTMF_D};                 // ATIVAÇÃO RELÉ A4
+dtmf password_A1[] = {DTMF_1, DTMF_0, DTMF_8};                 // ATIVAÇÃO RELÉ A1
+dtmf password_A2[] = {DTMF_5, DTMF_ASTERISK, DTMF_3};          // ATIVAÇÃO RELÉ A2
+dtmf password_A3[] = {DTMF_7, DTMF_HASH, DTMF_A};              // ATIVAÇÃO RELÉ A3
+dtmf password_A4[] = {DTMF_B, DTMF_C, DTMF_D};                 // ATIVAÇÃO RELÉ A4
 
 
 int main(){
@@ -51,18 +51,71 @@ int main(){
 
      bool signal = PINC & (1 << STQ);                        // Lê o estado do STQ: BIT0 do PC0 (PINO A0)
 
-        if (signal)
-        {                                                   // Se Houver sinal do STQ
+        if (signal && PINC != DTMF_HASH)
+        {  
+                                                            // Se Houver sinal do STQ
             keyword = (PINC & 0x1E) >> 1;                   // key recebe Q1 Q2 Q3 Q4, e descarta os outros bits. 0b0000xxxx
 
                 if (keyword_sequence < KEYWORD_MAX_LENGTH)
                     {
                         keyword_read[keyword_sequence++] = keyword; // adiciona o tone à sequencia;
                     }
+
+                else
+                {
+                      //nada
+                }
         }
 
     }//fim while
 }//fim main
+
+uint8_t dmtf_keywordChar (uint8_t keyword_read_char[]){
+
+    uint8_t keyword_char[KEYWORD_MAX_LENGTH];
+    uint8_t keyword_value_char;
+
+    for(uint8_t value = 0; value < KEYWORD_MAX_LENGTH; i++)
+    {
+        switch (keyword_read_char[value]) {
+
+            case 0x01: keyword_value_char = '1'; break;
+
+            case 0x02: keyword_value_char = '2'; break;
+
+            case 0x03: keyword_value_char = '3'; break;
+
+            case 0x04: keyword_value_char = '4'; break;
+
+            case 0x05: keyword_value_char = '5'; break;
+
+            case 0x06: keyword_value_char = '6'; break;
+
+            case 0x07: keyword_value_char = '7'; break;
+
+            case 0x08: keyword_value_char = '8'; break;
+
+            case 0x09: keyword_value_char = '9'; break;
+
+            case 0x0A: keyword_value_char = '0'; break;
+
+            case 0x0B: keyword_value_char = '*'; break;
+
+            case 0x0C: keyword_value_char= '#'; break;
+
+            default:   keyword_value_char = '?'; break; // Caractere padrão para valores não especificados       
+
+    }//fim switch
+
+      keyword_char[value++] =  keyword_value_char;
+
+    }//fim while
+
+}//fim dmtf_keywordChar
+
+
+
+
 
 
 //============= SUB ROTINAS ======================

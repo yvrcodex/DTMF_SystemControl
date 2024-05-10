@@ -69,6 +69,9 @@ typedef enum : uint8_t {
     DTMF_HASH,           //  # (frequências: 941 Hz e 1477 Hz)
     DTMF_ASTERISK        // .* (frequências: 941 Hz e 1209 Hz)
 
-} DTMF;
+} dtmf;
+
+
+
 
 #endif
