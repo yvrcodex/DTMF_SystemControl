@@ -1,18 +1,5 @@
 // ================== HEADERS ======================================
-
-#include <Arduino.h>
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
-#include <SPI.h>   
-
-
-
-// Instância da Adafruit ST7789 TFT library
-Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
-
-
-// =================== DISPLAY FUNCTIONS ========================= //
-
+#include "../include/atmega328p_config.h"
 
 
 //====================  TELA DE CARREGAMENTO ======================
@@ -40,8 +27,6 @@ void loading(void)
   }
   tft.fillScreen(ST77XX_BLACK);
 }
-
-//===================================================================
 
 
 //======================= TELA DE LEITURA ==========================
