@@ -2,6 +2,9 @@
 #include "../include/atmega328p_config.h"
 
 
+Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+
+
 //====================  TELA DE CARREGAMENTO ======================
 void loading(void)
 {

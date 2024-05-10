@@ -18,7 +18,7 @@ void reading();
 
 // ============= DEFINES UNIDADE DE COMPILAÇAO LOCAL ==============
 
-#define KEYWORD_MAX_LENGTH 8        // Comprimento máximo da sequência de tons DTMF
+#define KEYWORD_MAX_LENGTH 4        // Comprimento máximo da sequência de tons DTMF
 
 
 // ============ VARIAVEIS GLOBAL ==================================
@@ -71,7 +71,7 @@ int main(){
 // Função para verificar se a sequência de tons corresponde a uma senha
 bool check_password(uint8_t *password)
 {
-    for (uint8_t i = 0; i < 3; i++)
+    for (uint8_t i = 0; i < KEYWORD_MAX_LENGTH; i++)
     {
         if (keyword_read[i] != password[i]) // Verifica cada elemento da sequência com a senha
             return false;           // Se houver uma diferença, retorna falso

@@ -39,7 +39,7 @@
 // ================= INSTANCIA GLOBAL ======================
 
 // Instância da Adafruit ST7789 TFT library
-Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+extern Adafruit_ST7789 tft ;
 
 
 // ================= DEFINIÇÕES CONSTANTES =================
