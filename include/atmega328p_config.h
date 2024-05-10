@@ -28,7 +28,7 @@
 
 
 // MODULO DTMF MT8870
-#define EST     PC0   // Saída de Estado (Output State)     - Pino A0 do Arduino Uno (Porta C, Bit 0)
+#define STQ     PC0   // Saída de Estado (Output State)     - Pino A0 do Arduino Uno (Porta C, Bit 0)
 #define Q1      PC1   // Saída do primeiro dígito DTMF      - Pino A1 do Arduino Uno (Porta C, Bit 1)
 #define Q2      PC2   // Saída do segundo dígito DTMF       - Pino A2 do Arduino Uno (Porta C, Bit 2)
 #define Q3      PC3   // Saída do terceiro dígito DTMF      - Pino A3 do Arduino Uno (Porta C, Bit 3)
@@ -42,12 +42,33 @@
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 
-
 // ================= DEFINIÇÕES CONSTANTES =================
 
 
 #define BAUD 9600                      // Taxa de baud
 #define MYUBRR F_CPU / 16 / BAUD - 1   // Valor de UBRR para a configuração da UART
-#define MAX_SEQUENCE_LENGTH 20         // Comprimento máximo da sequência de tons DTMF
+
+
+// ========== DEFINIÇÃO DOS TONS DTMF VIA ENUM =============
+typedef enum : uint8_t {
+
+    DTMF_0 = 0x00,       //  0 (frequências: 697 Hz e 1209 Hz)
+    DTMF_1,              //  1 (frequências: 697 Hz e 1336 Hz)
+    DTMF_2,              //  2 (frequências: 697 Hz e 1477 Hz)
+    DTMF_3,              //  3 (frequências: 770 Hz e 1209 Hz)
+    DTMF_4,              //  4 (frequências: 770 Hz e 1336 Hz)
+    DTMF_5,              //  5 (frequências: 770 Hz e 1477 Hz)
+    DTMF_6,              //  6 (frequências: 852 Hz e 1209 Hz)
+    DTMF_7,              //  7 (frequências: 852 Hz e 1336 Hz)
+    DTMF_8,              //  8 (frequências: 852 Hz e 1477 Hz)
+    DTMF_9,              //  9 (frequências: 941 Hz e 1209 Hz)
+    DTMF_A,              //  A (frequências: 941 Hz e 1336 Hz)
+    DTMF_B,              //  B (frequências: 941 Hz e 1477 Hz)
+    DTMF_C,              //  C (frequências: 697 Hz e 1633 Hz)
+    DTMF_D,              //  D (frequências: 770 Hz e 1633 Hz)
+    DTMF_HASH,           //  # (frequências: 941 Hz e 1477 Hz)
+    DTMF_ASTERISK        // .* (frequências: 941 Hz e 1209 Hz)
+
+} DTMF;
 
 #endif
