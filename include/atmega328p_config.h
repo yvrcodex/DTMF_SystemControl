@@ -44,9 +44,9 @@ extern Adafruit_ST7789 tft ;
 
 // ================= DEFINIÇÕES CONSTANTES =================
 
-
-#define BAUD 9600                      // Taxa de baud
-#define MYUBRR F_CPU / 16 / BAUD - 1   // Valor de UBRR para a configuração da UART
+//#define PCINT2      _VECTOR(5)          // Pin Change Interrupt Request 1 
+#define BAUD 9600                       // Taxa de baud
+#define MYUBRR F_CPU / 16 / BAUD - 1    // Valor de UBRR para a configuração da UART
 
 
 // ========== DEFINIÇÃO DOS TONS DTMF VIA ENUM =============
