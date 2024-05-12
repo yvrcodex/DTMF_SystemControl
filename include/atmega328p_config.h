@@ -48,12 +48,30 @@ extern Adafruit_ST7789 tft ;
 #define BAUD 9600                       // Taxa de baud
 #define MYUBRR F_CPU / 16 / BAUD - 1    // Valor de UBRR para a configuração da UART
 
+#define DTMF_1          0x01        //  1 (frequências: 697 Hz e 1336 Hz)
+#define DTMF_2          0x02        //  2 (frequências: 697 Hz e 1477 Hz)
+#define DTMF_3          0x03        //  3 (frequências: 770 Hz e 1209 Hz)
+#define DTMF_4          0x04        //  4 (frequências: 770 Hz e 1336 Hz)
+#define DTMF_5          0x05        //  5 (frequências: 770 Hz e 1477 Hz)
+#define DTMF_6          0x06        //  6 (frequências: 852 Hz e 1209 Hz)
+#define DTMF_7          0x07        //  7 (frequências: 852 Hz e 1336 Hz)
+#define DTMF_8          0x08        //  8 (frequências: 852 Hz e 1477 Hz)
+#define DTMF_9          0x09        //  9 (frequências: 941 Hz e 1209 Hz)
+#define DTMF_0          0x00        //  0 (frequências: 697 Hz e 1209 Hz)
+#define DTMF_HASH       0x0E        //  # (frequências: 941 Hz e 1477 Hz)
+#define DTMF_ASTERISK   0x0F        // .* (frequências: 941 Hz e 1209 Hz)
+#define DTMF_A          0x0A        //  A (frequências: 941 Hz e 1336 Hz)
+#define DTMF_B          0x0B        //  B (frequências: 941 Hz e 1477 Hz)
+#define DTMF_C          0x0C        //  C (frequências: 697 Hz e 1633 Hz)
+#define DTMF_D          0x0D        //  D (frequências: 770 Hz e 1633 Hz)
+
+
+
 
 // ========== DEFINIÇÃO DOS TONS DTMF VIA ENUM =============
-typedef enum : uint8_t {
+/*typedef enum : uint8_t {
 
-    DTMF_0 = 0x00,       //  0 (frequências: 697 Hz e 1209 Hz)
-    DTMF_1,              //  1 (frequências: 697 Hz e 1336 Hz)
+    DTMF_1 = 0x01,        //  1 (frequências: 697 Hz e 1336 Hz)
     DTMF_2,              //  2 (frequências: 697 Hz e 1477 Hz)
     DTMF_3,              //  3 (frequências: 770 Hz e 1209 Hz)
     DTMF_4,              //  4 (frequências: 770 Hz e 1336 Hz)
@@ -62,15 +80,16 @@ typedef enum : uint8_t {
     DTMF_7,              //  7 (frequências: 852 Hz e 1336 Hz)
     DTMF_8,              //  8 (frequências: 852 Hz e 1477 Hz)
     DTMF_9,              //  9 (frequências: 941 Hz e 1209 Hz)
+    DTMF_0,               //  0 (frequências: 697 Hz e 1209 Hz)
+    DTMF_HASH,           //  # (frequências: 941 Hz e 1477 Hz)
+    DTMF_ASTERISK,        // .* (frequências: 941 Hz e 1209 Hz)
     DTMF_A,              //  A (frequências: 941 Hz e 1336 Hz)
     DTMF_B,              //  B (frequências: 941 Hz e 1477 Hz)
     DTMF_C,              //  C (frequências: 697 Hz e 1633 Hz)
-    DTMF_D,              //  D (frequências: 770 Hz e 1633 Hz)
-    DTMF_HASH,           //  # (frequências: 941 Hz e 1477 Hz)
-    DTMF_ASTERISK        // .* (frequências: 941 Hz e 1209 Hz)
+    DTMF_D              //  D (frequências: 770 Hz e 1633 Hz)
 
 } dtmf;
-
+*/
 
 
 

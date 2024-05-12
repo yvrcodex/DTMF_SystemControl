@@ -11,7 +11,7 @@ void loading(void)
 
   const int centerX = 120;
   const int centerY = 120;
-const int barWidth = 20;
+  const int barWidth = 20;
   const int barHeight = 10;
 
   // Define a cor da barra de progresso
