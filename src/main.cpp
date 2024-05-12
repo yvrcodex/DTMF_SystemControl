@@ -2,164 +2,162 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>             // Arduino SPI librar
-// #include <Wire.h>
-
 
 // Definições dos pinos do display ST7789
-#define TFT_DC 9    // DC (data/command)
-#define TFT_RST 8   // RST (reset)
-#define TFT_MOSI 11 // MOSI (SPI data pin)
-#define TFT_SCLK 13 // SCLK (SPI sclk pin)
-#define TFT_CS 10   // CHIP SELECT
-#define PD5_PIN (1 << PD5)
-#define KEYWORD_MAX_LENGTH 4 // Comprimento máximo da sequência de tons DTMF
+#define TFT_DC    9            // DC (data/command)
+#define TFT_RST   8            // RST (reset)
+#define TFT_MOSI  11           // MOSI (SPI data pin)
+#define TFT_SCLK  13           // SCLK (SPI sclk pin)
+#define TFT_CS    10           // CHIP SELECT
+
 
 // MODULO DTMF MT8870 PINOUT
-#define Q1      PC0   // Saída do primeiro dígito DTMF      - Pino A0 do Arduino Uno (Porta C, Bit 0) 
-#define Q2      PC1   // Saída do segundo dígito DTMF       - Pino A1 do Arduino Uno (Porta C, Bit 1)
-#define Q3      PC2   // Saída do terceiro dígito DTMF      - Pino A2 do Arduino Uno (Porta C, Bit 2)
-#define Q4      PC3   // Saída do quarto dígito DTMF        - Pino A3 do Arduino Uno (Porta C, Bit 3)
-#define STQ     PC4   // Saída de Estado (Output State)     - Pino A4 do Arduino Uno (Porta C, Bit 4)
+#define Q1      PC0                 //  OUTPUT LSB DTMF   - Pino A0 do Arduino Uno (PORTC, Bit 0) 
+#define Q2      PC1                 //  OUTPUT 1 DTMF     - Pino A1 do Arduino Uno (PORTC, Bit 1)
+#define Q3      PC2                 //  OUTPUT 2 DTMF     - Pino A2 do Arduino Uno (PORTC, Bit 2)
+#define Q4      PC3                 //  OUTPUT MSB DTMF   - Pino A3 do Arduino Uno (PORTC, Bit 3)
+#define STQ     PC4                 //  OUTPUT STATE      - Pino A4 do Arduino Uno (PORTC, Bit 4)
+
+// PINO PARA INTERRUPÇÃO
+#define PIN_INTERRUPT PCINT21       // PD5 [ PINO 5 ARDUINO UNO]
 
 // DUAL TONE CHARACTERE DEFINES
-#define DTMF_1          0x01        //  1 - (frequências: 697 Hz e 1336 Hz)
-#define DTMF_2          0x02        //  2 - (frequências: 697 Hz e 1477 Hz)
-#define DTMF_3          0x03        //  3 - (frequências: 770 Hz e 1209 Hz)
-#define DTMF_4          0x04        //  4 - (frequências: 770 Hz e 1336 Hz)
-#define DTMF_5          0x05        //  5 - (frequências: 770 Hz e 1477 Hz)
-#define DTMF_6          0x06        //  6 - (frequências: 852 Hz e 1209 Hz)
-#define DTMF_7          0x07        //  7 - (frequências: 852 Hz e 1336 Hz)
-#define DTMF_8          0x08        //  8 - (frequências: 852 Hz e 1477 Hz)
-#define DTMF_9          0x09        //  9 - (frequências: 941 Hz e 1209 Hz)
-#define DTMF_0          0x0A        //  0 - (frequências: 697 Hz e 1209 Hz)
-#define DTMF_HASH       0x0B        //  # - (frequências: 941 Hz e 1477 Hz)
-#define DTMF_ASTERISK   0x0C        // .* - (frequências: 941 Hz e 1209 Hz)
+#define DTMF_1          0x11        //  1 - (frequências: 697 Hz e 1336 Hz)
+#define DTMF_2          0x12        //  2 - (frequências: 697 Hz e 1477 Hz)
+#define DTMF_3          0x13        //  3 - (frequências: 770 Hz e 1209 Hz)
+#define DTMF_4          0x14        //  4 - (frequências: 770 Hz e 1336 Hz)
+#define DTMF_5          0x15        //  5 - (frequências: 770 Hz e 1477 Hz)
+#define DTMF_6          0x16        //  6 - (frequências: 852 Hz e 1209 Hz)
+#define DTMF_7          0x17        //  7 - (frequências: 852 Hz e 1336 Hz)
+#define DTMF_8          0x18        //  8 - (frequências: 852 Hz e 1477 Hz)
+#define DTMF_9          0x19        //  9 - (frequências: 941 Hz e 1209 Hz)
+#define DTMF_0          0x1A        //  0 - (frequências: 697 Hz e 1209 Hz)
+#define DTMF_HASH       0x1B        //  # - (frequências: 941 Hz e 1477 Hz)
+#define DTMF_ASTERISK   0x1C        // .* - (frequências: 941 Hz e 1209 Hz)
 
-// Instância da Adafruit ST7789 TFT library
+// CONSTANT DEFINE
+#define KEYWORD_MAX_LENGTH  4       // SEQUENCIA MAXIMA de tons DTMF
+#define CURSOR_POS0_X      20       // POSIÇÃO INICIAL CURSOR DISPLAY COLUNA
+#define CURSOR_POS0_Y      30       // POSIÇÃO INICIAL CURSOR DISPLAY LINHA
+#define CURSOR_INCREMENT_X 50       // INCREMENTO INICIAL PARA  CURSOR  X LINHA
+
+// Instância Adafruit ST7789 TFT library
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
-
-bool check_password(uint8_t *password);
-void loading(void);
-void reading();
+/* DECLARAÇÃO DE PROTOTIPOS */
 uint8_t disp_asterisk(bool x);
-uint8_t active(bool x);
+uint8_t dtmf_dispChar (uint8_t keyword_value);
+uint8_t disp_asterisk(bool x);
+uint8_t active(uint8_t ax);
+bool    check_password(uint8_t *password);
+void    loading(void);
+void    reading();
 
+/* // PASSWORD TEST
+uint8_t TEST_password_A1[] = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};        
+uint8_t TEST_password_A2[] = {DTMF_5, DTMF_HASH, DTMF_3}; 
+*/
 
-uint8_t TEST_password_A1[] = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};        // ATIVAÇÃO RELÉ A1
-uint8_t password_A1[]      = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};         // ATIVAÇÃO RELÉ A1
+// KEYWORD: DECLARAÇÃO DOS PASSWORDS
+uint8_t password_A1[] = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};   // PASSWORD: ATIVAÇÃO RELÉ A1
+uint8_t password_A2[] = {DTMF_5, DTMF_0, DTMF_3, DTMF_5};   // PASSWORD: ATIVAÇÃO RELÉ A2
+uint8_t password_A3[] = {DTMF_5, DTMF_3, DTMF_3, DTMF_5};   // PASSWORD: ATIVAÇÃO RELÉ A3
+uint8_t password_A4[] = {DTMF_5, DTMF_7, DTMF_3, DTMF_5};   // PASSWORD: ATIVAÇÃO RELÉ A4
 
-
-uint8_t password_A2[] = {DTMF_5, DTMF_HASH, DTMF_3}; // ATIVAÇÃO RELÉ A2
-uint8_t TEST_password_A2[] = {DTMF_5, DTMF_HASH, DTMF_3}; // ATIVAÇÃO RELÉ A2
-
-uint8_t trigger_hash =  DTMF_HASH;
-
+// DECLARAÇÃO VARIAVEIS GLOBAL;
 uint8_t keyword_read[KEYWORD_MAX_LENGTH];
 uint8_t keyword_sequence = 0;
 uint8_t keyword;
-uint8_t cursor_posX = 20;
-uint8_t cursor_posY = 30;
-int i = 0;
-uint8_t pinos = 0;
+uint8_t cursor_posX = CURSOR_POS0_X;
+uint8_t cursor_posY = CURSOR_POS0_Y;
 
-volatile uint8_t interrupt_flag = 0;
 
-void loading(void);
-void reading(void);
-uint8_t dtmf_dispChar (uint8_t keyword_value);
-
+//================ MAIN FUNCTION ==================================
 void setup(void)
 {
 
-  DDRB    &= ~0x1F;   // define os pinos PB0 à PB4 como entrada sem alterar o estado dos outros
-  PORTC   &= ~0xFF;   // Garante que os pinos PINC6 a PINC0 iniciem em zero;
-  UCSR0B  &= ~0x18;   // desabilita RX (bit4) e TX(bit3) para trabalho com os pinos do PORTD no Arduino
-  PORTD   &= ~0x10;   // garante que o PD5  PCINT21  pino 5 arduino esteja em LOW
-
+  UCSR0B  &= ~0x18;            // desabilita RX (bit4) e TX(bit3) para trabalho com os pinos do PORTD no Arduino
+  DDRD    |= 0xC0;             // Define os bits 6 e 7 como saída (11000000 em binário)
+  PORTD   =  0x00;             // garante os pinos PD0 à PD7 iniciem em LOW
+  DDRC    &= ~0x7F;            // DEFINE PORTC COMO ENTRADA
+  PORTC   &= ~0x7F;            // Garante que os pinos A0 à A6 iniciem em zero;
   PCICR   |= (1 << PCIE2);     // Habilita a interrupção via PORTD (PCINT16-23)
   PCMSK2  |= (1 << PCINT21);   // habilita interrupção para PCINT21 (PD5) (pino 5 arduino)
-  SREG    |= 0x80;             // Habilitar interrupções globais bit (I = 1)
+  SREG    |= 0x80;             // Habilitar interrupções globais bit 7 (I = 1)
 
-
-  PCMSK2 |= (1 << PCINT21);
-
-
+  //INITIAL SETUP
   Serial.begin(9600);
   tft.init(240, 240, SPI_MODE2);
   tft.setRotation(2);
   tft.fillScreen(ST77XX_BLACK);
-  bool x = 1;
-
   loading();
+  reading();
   disp_asterisk(true);
   _delay_ms(3000);
 
-  
 
-  while (true) // LOOP INFINITO
+  while (true) // LOOP LEITURA DTMF KEYS
   {
 
 
-   
-    PORTC |= (1<<STQ);
-    bool signal = (PINC |= (1 << STQ)); // Lê o estado do STQ: BIT0 do PC0 (PINO A4)
+    bool signal = (PINC |= (1 << STQ));              // Lê o estado do STQ
 
-    if (signal && !interrupt_flag) // / Se Houver sinal do STQ e o tom  for diferente de #
+    if (signal) 
     {
      
+      keyword = (PINC);                             // ADD AO KYWORD O VALOR NO PINC
 
-      pinos =  (TEST_password_A1[i]) ;
-      keyword = (pinos) ; // key recebe Q1 Q2 Q3 Q4, e descarta os outros bits. 0b0000xxxx
-
-      if (keyword != DTMF_ASTERISK && keyword_sequence < KEYWORD_MAX_LENGTH)
+      if (keyword_sequence < KEYWORD_MAX_LENGTH)
       {
 
-        keyword_read[keyword_sequence++] = keyword; // adiciona o tone à sequencia;
-        dtmf_dispChar(keyword);
-        cursor_posX+= 50;
-        i++;
+        keyword_read[keyword_sequence++] = keyword; // ADD AO ARRAY O VALOR KEYWORD E INCREMENTA POSIÇÃO
+        dtmf_dispChar(keyword);                     // MOSTRA NO DISPLAY O TON RECEBEIDO
+        cursor_posX+= CURSOR_INCREMENT_X;           // MUDA A POSIÇÃO DO CURSOR
 
-        
-      }//fim if
+      }//fim keyword_read
 
-      else if (!interrupt_flag)
+      else
       {
 
-      PORTD |= (1 << PD5); // ATIVA INTERRUPÇÃO  
-      tft.fillScreen(ST77XX_BLACK);
-            reading();
+      PORTD |= (1 << PIN_INTERRUPT); // ATIVA INTERRUPÇÃO  
+
+      tft.fillScreen(ST77XX_BLACK); // LIMPA A TELA;
       
       }// fim else
     }
     _delay_ms(300);
-  } // fim if
+  } // fim leitura signal
 } // fim main
 
-// ============================== INTERUPTION FUNCTION ======================
+
+
+// ======================= INTERUPTION FUNCTION ======================
+
 ISR(PCINT2_vect){
 
-  if(PIND & (1 << PD5)){
+    if(PIND & (1 << PIN_INTERRUPT)){ // VERIFICA SE A INTERRUPÇÃ OCORREU NO PINO DEFINIDO
 
-  check_password(password_A1);
-  active(true);
-  _delay_ms(2000);
-  active(false);
+    // VERIFICA SE A SEQUENCIA LIDA EQUIVALE À ALGUM PASSWORD
+    if      (check_password(password_A1))      active(1);
 
-  }else{
-  
-  tft.setTextSize(3); // Tamanho da fonte grande
-  tft.setCursor(35, 130);
-  tft.println("INVALID");
-  tft.setCursor(35, 150);
-  tft.println("PASSWORD");
+    else if (check_password(password_A2))      active(2);
+    
+    else if (check_password(password_A3))      active(3);
+    
+    else if (check_password(password_A4))      active(4);
+    
+    else    invalid();
 
   }
-  _delay_ms(200);
 
-  i = 0;
-  interrupt_flag = 1;
+  PCIFR &= ~(1 << PCIF2);  // Limpa o bit de flag de interrupção do Port C (PCINT16-23)
+
+  loading();
+  
 }
+
+
+//===================== PROTOTIPE FUNCTIONs =========================================
 
 /* PASSWORD CHECK */
 bool check_password(uint8_t *password) // Função para verificar se a sequência de tons corresponde a uma senha
@@ -171,6 +169,8 @@ bool check_password(uint8_t *password) // Função para verificar se a sequênci
   }
   return true; // Se a sequência corresponder à senha, retorna verdadeiro
 } //fim check_password
+
+
 
 /* TFT DISPLAY CHARACTER */
 uint8_t dtmf_dispChar (uint8_t keyword_value){
@@ -185,9 +185,7 @@ uint8_t dtmf_dispChar (uint8_t keyword_value){
   tft.println(" * ");
   tft.setTextColor(ST77XX_YELLOW);
 
-
-
-
+  // CONVERSÃO DUAL-TONE EM CARACTERE
   switch (keyword_value)
   {
 
@@ -218,6 +216,7 @@ uint8_t dtmf_dispChar (uint8_t keyword_value){
   default:  tft.println("ERROR");
   break;
   }
+
   tft.setTextColor(ST77XX_YELLOW);
   tft.setCursor(cursor_posX, cursor_posY);
 
@@ -228,6 +227,8 @@ uint8_t dtmf_dispChar (uint8_t keyword_value){
 uint8_t disp_asterisk(bool x){
 
 
+  extern uint8_t cursor_posX;
+  extern uint8_t cursor_posY;
 
   uint8_t set_cursor = cursor_posX;
   
@@ -244,7 +245,7 @@ uint8_t disp_asterisk(bool x){
 
   tft.setCursor(set_cursor, cursor_posY);
   tft.println(" * ");
-  set_cursor += 50;
+  set_cursor += CURSOR_INCREMENT_X;
   }
 
 
@@ -259,33 +260,77 @@ uint8_t disp_asterisk(bool x){
 }
 
 
-  uint8_t active(bool x){
-  
-
-  if(x)
-  {
+uint8_t active(uint8_t ax){
 
   tft.setTextColor(ST77XX_GREEN); 
-  tft.setTextSize(6); // Tamanho da fonte grande
-  tft.setCursor(83, 100);
-  tft.println("A1 ");
 
-  tft.setTextSize(3); // Tamanho da fonte grande
-  tft.setCursor(35, 150);
-  tft.println("ATIVACTED");
-  }
-  else
+  if(ax = 1)
   {
-  tft.setTextColor(ST77XX_BLACK); 
-  tft.setTextSize(6); // Tamanho da fonte grande
-  tft.setCursor(83, 100);
-  tft.println("A1 ");
 
-  tft.setTextSize(3); // Tamanho da fonte grande
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A1");
+
+  tft.setTextSize(3); 
   tft.setCursor(35, 150);
   tft.println("ATIVACTED");
-  
   }
+
+  else if (ax =2)
+  {
+
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A2 ");
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 150);
+  tft.println("ATIVACTED");
+
+  }
+  else if (ax = 3)
+  {
+
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A3");
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 150);
+  tft.println("ATIVACTED");
+
+  }else if (ax = 4) {
+
+    
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A4");
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 150);
+  tft.println("ATIVACTED");
+
+  }
+
+}
+
+void invalid(void){
+
+
+
+  tft.fillScreen(ST77XX_RED);
+  tft.setTextColor(ST77XX_WHITE);
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 130);
+  tft.println("INVALID");
+  tft.setCursor(35, 150);
+  tft.println("PASSWORD");
+
+  _delay_ms(1000);
+  disp_asterisk(true);
+
+
 }
 
 /* ANIMATION LOADING */
@@ -298,8 +343,8 @@ void loading(void)
   const int barHeight = 10;
 
   tft.setTextColor(ST77XX_BLUE);
-  tft.setCursor(20, 200);
-  tft.setTextSize(2);
+  tft.setCursor(40, 200);
+  tft.setTextSize(1);
   tft.println("Created by: Yasser");
 
   // Define a cor da barra de progresso
@@ -348,8 +393,6 @@ void reading(void)
   tft.println("DUAL-TONE");
 
   // Loop para desenhar os pontos em um círculo
-  while (true)
-  {
 
     int i = 0;
     int j = 1;
@@ -380,12 +423,12 @@ void reading(void)
       _delay_ms(10);
       tft.fillCircle(x1, y1, dotSize / 2, dotColor);
       j++;
-    }
 
-  } // fim while
+    }
 }
 
-/*
+
+/* SCRIPT TEST DISPLAY 
 void reading(void){
 
 
