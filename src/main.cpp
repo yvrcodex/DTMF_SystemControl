@@ -45,13 +45,15 @@
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 /* DECLARAÇÃO DE PROTOTIPOS */
+bool    check_password(uint8_t *password);
 uint8_t disp_asterisk(bool x);
 uint8_t dtmf_dispChar (uint8_t keyword_value);
 uint8_t disp_asterisk(bool x);
-uint8_t active(uint8_t ax);
-bool    check_password(uint8_t *password);
+uint8_t relay_enable(uint8_t active);
+uint8_t relay_disable(uint8_t desactive);
 void    loading(void);
-void    reading();
+void    reading(void);
+void    invalid(void);
 
 /* // PASSWORD TEST
 uint8_t TEST_password_A1[] = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};        
@@ -59,10 +61,15 @@ uint8_t TEST_password_A2[] = {DTMF_5, DTMF_HASH, DTMF_3};
 */
 
 // KEYWORD: DECLARAÇÃO DOS PASSWORDS
-uint8_t password_A1[] = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};   // PASSWORD: ATIVAÇÃO RELÉ A1
-uint8_t password_A2[] = {DTMF_5, DTMF_0, DTMF_3, DTMF_5};   // PASSWORD: ATIVAÇÃO RELÉ A2
-uint8_t password_A3[] = {DTMF_5, DTMF_3, DTMF_3, DTMF_5};   // PASSWORD: ATIVAÇÃO RELÉ A3
-uint8_t password_A4[] = {DTMF_5, DTMF_7, DTMF_3, DTMF_5};   // PASSWORD: ATIVAÇÃO RELÉ A4
+uint8_t password_A1E[] = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};   // PASSWORD: ATIVA RELÉ A1
+uint8_t password_A2E[] = {DTMF_5, DTMF_0, DTMF_3, DTMF_5};   // PASSWORD: ATIVA RELÉ A2
+uint8_t password_A3E[] = {DTMF_5, DTMF_3, DTMF_3, DTMF_5};   // PASSWORD: ATIVA RELÉ A3
+uint8_t password_A4E[] = {DTMF_5, DTMF_7, DTMF_3, DTMF_5};   // PASSWORD: ATIVA RELÉ A4
+
+uint8_t password_A1D[] = {DTMF_1, DTMF_8, DTMF_2, DTMF_6};   // PASSWORD: DESATIVA RELÉ A1
+uint8_t password_A2D[] = {DTMF_5, DTMF_0, DTMF_3, DTMF_5};   // PASSWORD: DESATIVA RELÉ A2
+uint8_t password_A3D[] = {DTMF_5, DTMF_3, DTMF_3, DTMF_5};   // PASSWORD: DESATIVA RELÉ A3
+uint8_t password_A4D[] = {DTMF_5, DTMF_7, DTMF_3, DTMF_5};   // PASSWORD: DESATIVA RELÉ A4
 
 // DECLARAÇÃO VARIAVEIS GLOBAL;
 uint8_t keyword_read[KEYWORD_MAX_LENGTH];
@@ -78,7 +85,7 @@ void setup(void)
 
   UCSR0B  &= ~0x18;            // desabilita RX (bit4) e TX(bit3) para trabalho com os pinos do PORTD no Arduino
   DDRD    |= 0xC0;             // Define os bits 6 e 7 como saída (11000000 em binário)
-  PORTD   =  0x00;             // garante os pinos PD0 à PD7 iniciem em LOW
+  PORTD    = 0x00;             // garante os pinos PD0 à PD7 iniciem em LOW
   DDRC    &= ~0x7F;            // DEFINE PORTC COMO ENTRADA
   PORTC   &= ~0x7F;            // Garante que os pinos A0 à A6 iniciem em zero;
   PCICR   |= (1 << PCIE2);     // Habilita a interrupção via PORTD (PCINT16-23)
@@ -98,7 +105,6 @@ void setup(void)
 
   while (true) // LOOP LEITURA DTMF KEYS
   {
-
 
     bool signal = (PINC |= (1 << STQ));              // Lê o estado do STQ
 
@@ -121,7 +127,7 @@ void setup(void)
 
       PORTD |= (1 << PIN_INTERRUPT); // ATIVA INTERRUPÇÃO  
 
-      tft.fillScreen(ST77XX_BLACK); // LIMPA A TELA;
+      tft.fillScreen(ST77XX_BLACK);  // LIMPA A TELA;
       
       }// fim else
     }
@@ -138,13 +144,22 @@ ISR(PCINT2_vect){
     if(PIND & (1 << PIN_INTERRUPT)){ // VERIFICA SE A INTERRUPÇÃ OCORREU NO PINO DEFINIDO
 
     // VERIFICA SE A SEQUENCIA LIDA EQUIVALE À ALGUM PASSWORD
-    if      (check_password(password_A1))      active(1);
 
-    else if (check_password(password_A2))      active(2);
+    if      (check_password(password_A1E))      relay_enable(1); 
+
+    else if (check_password(password_A2E))      relay_enable(2);
+
+    else if (check_password(password_A3E))      relay_enable(3);
+
+    else if (check_password(password_A4E))      relay_enable(4);
+
+    else if (check_password(password_A1D))      relay_disable(1);
+
+    else if (check_password(password_A2D))      relay_disable(2);
     
-    else if (check_password(password_A3))      active(3);
+    else if (check_password(password_A3D))      relay_disable(3);
     
-    else if (check_password(password_A4))      active(4);
+    else if (check_password(password_A4D))      relay_disable(4);
     
     else    invalid();
 
@@ -220,7 +235,7 @@ uint8_t dtmf_dispChar (uint8_t keyword_value){
   tft.setTextColor(ST77XX_YELLOW);
   tft.setCursor(cursor_posX, cursor_posY);
 
-
+  return keyword_value;
 }
 
 /* PASSWORD ASTERISK */
@@ -257,14 +272,15 @@ uint8_t disp_asterisk(bool x){
   tft.setCursor(cursor_posX, cursor_posY);
   tft.println(" * ");
   }
+  return x;
 }
 
 
-uint8_t active(uint8_t ax){
+uint8_t relay_enable(uint8_t enable){
 
   tft.setTextColor(ST77XX_GREEN); 
 
-  if(ax = 1)
+  if  (enable == 1)
   {
 
   tft.setTextSize(6); 
@@ -273,10 +289,10 @@ uint8_t active(uint8_t ax){
 
   tft.setTextSize(3); 
   tft.setCursor(35, 150);
-  tft.println("ATIVACTED");
+  tft.println("ENABLED");
   }
 
-  else if (ax =2)
+  else if (enable ==2)
   {
 
   tft.setTextSize(6); 
@@ -285,10 +301,10 @@ uint8_t active(uint8_t ax){
 
   tft.setTextSize(3); 
   tft.setCursor(35, 150);
-  tft.println("ATIVACTED");
+  tft.println("ENABLED");
 
   }
-  else if (ax = 3)
+  else if (enable == 3)
   {
 
   tft.setTextSize(6); 
@@ -297,9 +313,9 @@ uint8_t active(uint8_t ax){
 
   tft.setTextSize(3); 
   tft.setCursor(35, 150);
-  tft.println("ATIVACTED");
+  tft.println("ENABLED");
 
-  }else if (ax = 4) {
+  }else if(enable == 4) {
 
     
   tft.setTextSize(6); 
@@ -308,14 +324,67 @@ uint8_t active(uint8_t ax){
 
   tft.setTextSize(3); 
   tft.setCursor(35, 150);
-  tft.println("ATIVACTED");
+  tft.println("ENABLED");
 
   }
+  return enable;
+}
 
+uint8_t relay_disable(uint8_t disable){
+
+  tft.setTextColor(ST77XX_GREEN); 
+
+  if(disable == 1)
+  {
+
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A1");
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 150);
+  tft.println("DISABLE");
+  }
+
+  else if (disable ==2)
+  {
+
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A2 ");
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 150);
+  tft.println("DISABLE");
+
+  }
+  else if (disable == 3)
+  {
+
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A3");
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 150);
+  tft.println("DISABLE");
+
+  }else if (disable == 4) {
+
+    
+  tft.setTextSize(6); 
+  tft.setCursor(83, 100);
+  tft.println("A4");
+
+  tft.setTextSize(3); 
+  tft.setCursor(35, 150);
+  tft.println("DISABLE");
+
+  }
+  return disable;
 }
 
 void invalid(void){
-
 
 
   tft.fillScreen(ST77XX_RED);
@@ -329,7 +398,6 @@ void invalid(void){
 
   _delay_ms(1000);
   disp_asterisk(true);
-
 
 }
 
@@ -455,7 +523,6 @@ void reading(void){
   tft.println(".");
   _delay_ms(500);
 }
-/*
 bool password_display(bool test){
 
 
@@ -503,7 +570,7 @@ bool password_display(bool test){
 
 }
 
-/*
+
 void testlines(uint16_t color)
 {
   tft.fillScreen(ST77XX_BLACK);
@@ -722,3 +789,4 @@ void mediabuttons()
   // play color
   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_GREEN);
 } */
+
