@@ -4,7 +4,6 @@
 #include <SPI.h>             // Arduino SPI librar
 
 
-
 // Definições dos pinos do display ST7789
 #define TFT_DC 9    // DC (data/command)  DC
 #define TFT_RST 8   // RST (reset) RES
@@ -37,6 +36,7 @@
 // PINO PARA INTERRUPÇÃO
 #define PIN_INTERRUPT PCINT21  // PD5 [ PINO 5 ARDUINO UNO]
 
+// CONSTANTES
 #define KEYWORD_MAX_LENGTH  4       // SEQUENCIA MAXIMA de tons DTMF
 #define CURSOR_POS0_X      20       // POSIÇÃO INICIAL CURSOR DISPLAY COLUNA
 #define CURSOR_POS0_Y      30       // POSIÇÃO INICIAL CURSOR DISPLAY LINHA
@@ -63,7 +63,7 @@ uint8_t password_A2E[] = {DTMF_3, DTMF_4, DTMF_5, DTMF_6};   // PASSWORD: ATIVA 
 uint8_t password_A3E[] = {DTMF_5, DTMF_6, DTMF_7, DTMF_8};   // PASSWORD: ATIVA RELÉ A3
 uint8_t password_A4E[] = {DTMF_7, DTMF_8, DTMF_9, DTMF_0};   // PASSWORD: ATIVA RELÉ A4
 
-uint8_t password_A1D[] = {DTMF_1, DTMF_2, DTMF_3, DTMF_3};   // PASSWORD: DESATIVA RELÉ A1
+uint8_t password_A1D[] = {DTMF_1, DTMF_2, DTMF_3, DTMF_3};      // PASSWORD: DESATIVA RELÉ A1
 uint8_t password_A2D[] = {DTMF_3, DTMF_4, DTMF_5, DTMF_HASH};   // PASSWORD: DESATIVA RELÉ A2
 uint8_t password_A3D[] = {DTMF_5, DTMF_6, DTMF_7, DTMF_HASH};   // PASSWORD: DESATIVA RELÉ A3
 uint8_t password_A4D[] = {DTMF_7, DTMF_8, DTMF_9, DTMF_HASH};   // PASSWORD: DESATIVA RELÉ A4
@@ -74,12 +74,12 @@ uint8_t keyword_sequence = 0;
 uint8_t keyword;
 uint8_t cursor_posX = CURSOR_POS0_X;
 uint8_t cursor_posY = CURSOR_POS0_Y;
+
+
 volatile bool flag = 0;
 
 
-
-
-void setup(void)
+int main(void)
 {
 
 
@@ -89,8 +89,7 @@ void setup(void)
   DDRD    |=   0xC0; // DEFINE PINOS 6 E 7 COMO SAIDAS;
 
 
-    
-  PCICR |= (1 << PCIE2);          // Habilitar a interrupção PCINT
+  PCICR  |= (1 << PCIE2);          // Habilitar a interrupção PCINT
   PCMSK2 |= (1 << PIN_INTERRUPT); // Habilitar a interrupção PINO 5 ARDUINO
   //sei();                          // Habilitar interrupções globais
 
@@ -103,7 +102,7 @@ void setup(void)
   reading();
   tft.fillScreen(ST77XX_BLACK);
   disp_asterisk(1);
-  _delay_ms(1000);
+  _delay_ms(200);
 
 while (true) // LOOP LEITURA DTMF KEYS
   {
@@ -131,18 +130,22 @@ while (true) // LOOP LEITURA DTMF KEYS
     sei(); 
     flag = 1;
     PORTD |= (1 << PIN_INTERRUPT); // ATIVA INTERRUPÇÃO
+
     _delay_ms(2000);
     keyword_sequence = 0;
     cursor_posX = CURSOR_POS0_X;
     cursor_posY = CURSOR_POS0_Y;
+
+    tft.fillScreen(ST77XX_BLACK);
+    reading();
     tft.fillScreen(ST77XX_BLACK);
     disp_asterisk(1);
     
     }// fim else
   } // fim leitura signal
 
+  return 0;
 } // fim main
-
 
 
 ISR(PCINT2_vect)
@@ -166,7 +169,7 @@ ISR(PCINT2_vect)
 
     else if (check_password(password_A4D,keyword_read))   relay_disable(4);
 
-  else invalid_keyword();
+    else invalid_keyword();
 
     }
 
@@ -189,6 +192,8 @@ uint8_t check_password(uint8_t *password, uint8_t keyword_read[]) // Função pa
 } //fim check_password
 
 
+
+// Display DTMF character
 uint8_t dtmf_dispChar (uint8_t keyword_value){
 
 
@@ -224,14 +229,13 @@ uint8_t dtmf_dispChar (uint8_t keyword_value){
 
   case DTMF_HASH:         tft.setCursor(cursor_posX, cursor_posY); tft.println(" # ");   break;
 
-  case DTMF_ASTERISK:     tft.setCursor(cursor_posX, cursor_posY); tft.println(" # ");   break;
+  case DTMF_ASTERISK:     tft.setCursor(cursor_posX, cursor_posY); tft.println(" * ");   break;
 
   default:  tft.println("ERROR");
   break;
   }
-
+  return 0;
 }
-
 
 
 /* ANIMATION LOADING */
@@ -267,7 +271,7 @@ void loading(void)
   tft.fillScreen(ST77XX_BLACK);
 }
 
-//======================= TELA DE LEITURA ==========================
+// ANIMATION: READING
 void reading(void)
 {
 
@@ -390,7 +394,7 @@ uint8_t relay_enable(uint8_t enable){
   tft.println("ENABLED");
   }
 
-  else if (enable ==2)
+  else if (enable ==  2)
   {
 
   tft.setTextSize(set_textsizeA); 
@@ -498,7 +502,6 @@ void invalid_keyword(void){
   uint8_t set_cursorAX = 35;
   uint8_t set_cursorAY = 80;
 
-  uint8_t set_textE = 4;
   uint8_t set_cursorEX = 30;
   uint8_t set_cursorEY = 130; 
 
@@ -515,301 +518,3 @@ void invalid_keyword(void){
   disp_asterisk(true);
 
 }
-
-
-
-
-/*
-void reading(void){
-
-
-
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_BLUE);
-  tft.setCursor(30, 10);
-  tft.println("READING");
-
-  tft.setTextSize(4);
-  tft.setCursor(50, 100);
-  tft.println(".");
-  _delay_ms(500);
-
-  tft.setCursor(55, 100);
-  tft.println(".");
-  _delay_ms(500);
-
-  tft.setCursor(60, 100);
-  tft.println(".");
-  _delay_ms(500);
-
-  tft.setCursor(65, 100);
-  tft.println(".");
-  _delay_ms(500);
-}
-/*
-bool password_display(bool test){
-
-
-  if(test) {
-
-  tft.fillScreen(ST77XX_BLACK);
-
-  // Imprime "PASSWORD CORRECT" em verde e centralizado na tela
-  tft.setTextColor(ST77XX_GREEN);
-  tft.setTextSize(4); // Tamanho da fonte
-
-  tft.setCursor(60, 40);
-  tft.println("VALID");
-  tft.setCursor(30, 110);
-  tft.println("PASSWORD");
-  _delay_ms(1000);
-  tft.fillScreen(ST77XX_BLACK);
-
-  tft.setTextSize(8); // Tamanho da fonte grande
-  tft.setCursor(80, 50);
-  tft.println("A1 ");
-
-  tft.setTextSize(3); // Tamanho da fonte grande
-  tft.setCursor(35, 130);
-  tft.println("ATIVACTED");
-
-
-  } else {
-
-    tft.fillScreen(ST77XX_BLACK);
-
-    // Imprime "PASSWORD CORRECT" em verde e centralizado na tela
-    tft.setTextColor(ST77XX_RED);
-    tft.setTextSize(4); // Tamanho da fonte
-
-    tft.setCursor(40, 40);
-    tft.println("INVALID");
-    tft.setCursor(30, 110);
-    tft.println("PASSWORD");
-
-
-  }
-
-  return test;
-
-}
-
-/*
-void testlines(uint16_t color)
-{
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x = 0; x < tft.width(); x += 6)
-  {
-    tft.drawLine(0, 0, x, tft.height() - 1, color);
-    delay(0);
-  }
-  for (int16_t y = 0; y < tft.height(); y += 6)
-  {
-    tft.drawLine(0, 0, tft.width() - 1, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x = 0; x < tft.width(); x += 6)
-  {
-    tft.drawLine(tft.width() - 1, 0, x, tft.height() - 1, color);
-    delay(0);
-  }
-  for (int16_t y = 0; y < tft.height(); y += 6)
-  {
-    tft.drawLine(tft.width() - 1, 0, 0, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x = 0; x < tft.width(); x += 6)
-  {
-    tft.drawLine(0, tft.height() - 1, x, 0, color);
-    delay(0);
-  }
-  for (int16_t y = 0; y < tft.height(); y += 6)
-  {
-    tft.drawLine(0, tft.height() - 1, tft.width() - 1, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x = 0; x < tft.width(); x += 6)
-  {
-    tft.drawLine(tft.width() - 1, tft.height() - 1, x, 0, color);
-    delay(0);
-  }
-  for (int16_t y = 0; y < tft.height(); y += 6)
-  {
-    tft.drawLine(tft.width() - 1, tft.height() - 1, 0, y, color);
-    delay(0);
-  }
-}
-
-void testdrawtext(char *text, uint16_t color)
-{
-  tft.setCursor(0, 0);
-  tft.setTextColor(color);
-  tft.setTextWrap(true);
-  tft.print(text);
-}
-
-void testfastlines(uint16_t color1, uint16_t color2)
-{
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t y = 0; y < tft.height(); y += 5)
-  {
-    tft.drawFastHLine(0, y, tft.width(), color1);
-  }
-  for (int16_t x = 0; x < tft.width(); x += 5)
-  {
-    tft.drawFastVLine(x, 0, tft.height(), color2);
-  }
-}
-
-void testdrawrects(uint16_t color)
-{
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x = 0; x < tft.width(); x += 6)
-  {
-    tft.drawRect(tft.width() / 2 - x / 2, tft.height() / 2 - x / 2, x, x, color);
-  }
-}
-
-void testfillrects(uint16_t color1, uint16_t color2)
-{
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x = tft.width() - 1; x > 6; x -= 6)
-  {
-    tft.fillRect(tft.width() / 2 - x / 2, tft.height() / 2 - x / 2, x, x, color1);
-    tft.drawRect(tft.width() / 2 - x / 2, tft.height() / 2 - x / 2, x, x, color2);
-  }
-}
-
-void testfillcircles(uint8_t radius, uint16_t color)
-{
-  for (int16_t x = radius; x < tft.width(); x += radius * 2)
-  {
-    for (int16_t y = radius; y < tft.height(); y += radius * 2)
-    {
-      tft.fillCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testdrawcircles(uint8_t radius, uint16_t color)
-{
-  for (int16_t x = 0; x < tft.width() + radius; x += radius * 2)
-  {
-    for (int16_t y = 0; y < tft.height() + radius; y += radius * 2)
-    {
-      tft.drawCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testtriangles()
-{
-  tft.fillScreen(ST77XX_BLACK);
-  int color = 0xF800;
-  int t;
-  int w = tft.width() / 2;
-  int x = tft.height() - 1;
-  int y = 0;
-  int z = tft.width();
-  for (t = 0; t <= 15; t++)
-  {
-    tft.drawTriangle(w, y, y, x, z, x, color);
-    x -= 4;
-    y += 4;
-    z -= 4;
-    color += 100;
-  }
-}
-
-void testroundrects()
-{
-  tft.fillScreen(ST77XX_BLACK);
-  int color = 100;
-  int i;
-  int t;
-  for (t = 0; t <= 4; t += 1)
-  {
-    int x = 0;
-    int y = 0;
-    int w = tft.width() - 2;
-    int h = tft.height() - 2;
-    for (i = 0; i <= 16; i += 1)
-    {
-      tft.drawRoundRect(x, y, w, h, 5, color);
-      x += 2;
-      y += 3;
-      w -= 4;
-      h -= 6;
-      color += 1100;
-    }
-    color += 100;
-  }
-}
-
-void tftPrintTest()
-{
-  tft.setTextWrap(false);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0, 30);
-  tft.setTextColor(ST77XX_RED);
-  tft.setTextSize(1);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_YELLOW);
-  tft.setTextSize(2);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_GREEN);
-  tft.setTextSize(3);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_BLUE);
-  tft.setTextSize(4);
-  tft.print(1234.567);
-  delay(1500);
-  tft.setCursor(0, 0);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(0);
-  tft.println("Hello World!");
-  tft.setTextSize(1);
-  tft.setTextColor(ST77XX_GREEN);
-  tft.print(p, 6);
-  tft.println(" Want pi?");
-  tft.println(" ");
-  tft.print(8675309, HEX); // print 8,675,309 out in HEX!
-  tft.println(" Print HEX!");
-  tft.println(" ");
-  tft.setTextColor(ST77XX_WHITE);
-  tft.println("Sketch has been");
-  tft.println("running for: ");
-  tft.setTextColor(ST77XX_MAGENTA);
-  tft.print(millis() / 1000);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.print(" seconds.");
-}
-
-void mediabuttons()
-{
-  // play
-  tft.fillScreen(ST77XX_BLACK);
-  tft.fillRoundRect(25, 10, 78, 60, 8, ST77XX_WHITE);
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_RED);
-  delay(500);
-  // pause
-  tft.fillRoundRect(25, 90, 78, 60, 8, ST77XX_WHITE);
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_GREEN);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_GREEN);
-  delay(500);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_BLUE);
-  delay(50);
-  // pause color
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_RED);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_RED);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_GREEN);
-} */
