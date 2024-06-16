@@ -1,15 +1,15 @@
-#include <Arduino.h>
+
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>             // Arduino SPI librar
 
 
 // Definições dos pinos do display ST7789
-#define TFT_DC    9     // DC (data/command)  DC
-#define TFT_RST   8     // RST (reset) RES
-#define TFT_MOSI  11    // MOSI (SPI data pin) SDA
-#define TFT_SCLK  13    // SCLK (SPI sclk pin) SCK
-#define TFT_CS    10    // CHIP SELECT  NC NULL
+#define TFT_DC 9    // DC (data/command)  DC
+#define TFT_RST 8   // RST (reset) RES
+#define TFT_MOSI 11 // MOSI (SPI data pin) SDA
+#define TFT_SCLK 13 // SCLK (SPI sclk pin) SCK
+#define TFT_CS 10   // CHIP SELECT  NC NULL
 
 // DUAL TONE CHARACTERE DEFINES
 #define DTMF_1          0x01        //  1 - (frequências: 697 Hz e 1336 Hz)
@@ -46,7 +46,6 @@
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 /* DECLARAÇÃO DE PROTOTIPOS */
-
 uint8_t check_password(uint8_t *password, uint8_t keyword_read[]);
 uint8_t dtmf_dispChar (uint8_t keyword_value);
 uint8_t disp_asterisk(bool x);
@@ -55,6 +54,7 @@ uint8_t relay_disable(uint8_t desactive);
 void    invalid_keyword(void);
 void    loading(void);
 void    reading(void);
+
 
 
 // KEYWORD: DECLARAÇÃO DOS PASSWORDS
@@ -89,8 +89,9 @@ int main(void)
   DDRD    |=   0xC0; // DEFINE PINOS 6 E 7 COMO SAIDAS;
 
 
-  PCICR  |= (1 << PCIE2);           // Habilitar a interrupção PCINT
-  PCMSK2 |= (1 << PIN_INTERRUPT);   // Habilitar a interrupção PINO 5 ARDUINO
+  PCICR  |= (1 << PCIE2);          // Habilitar a interrupção PCINT
+  PCMSK2 |= (1 << PIN_INTERRUPT); // Habilitar a interrupção PINO 5 ARDUINO
+  //sei();                          // Habilitar interrupções globais
 
 
   Serial.begin(9600);
@@ -121,12 +122,9 @@ while (true) // LOOP LEITURA DTMF KEYS
           dtmf_dispChar(keyword);                     // MOSTRA NO DISPLAY O TON RECEBEIDO
           cursor_posX+= CURSOR_INCREMENT_X;           // MUDA A POSIÇÃO DO CURSOR
         _delay_ms(100);
-
         }//fim keyword_read
     }
-
     else if (!signal && !(keyword_sequence < KEYWORD_MAX_LENGTH))
-
     {
 
     sei(); 
@@ -182,7 +180,7 @@ ISR(PCINT2_vect)
 
 }
 
-// PASSWORD CHECK
+/* PASSWORD CHECK */
 uint8_t check_password(uint8_t *password, uint8_t keyword_read[]) // Função para verificar se a sequência de tons corresponde a uma senha
 {
   for (uint8_t i = 0; i < KEYWORD_MAX_LENGTH; i++)
@@ -190,8 +188,8 @@ uint8_t check_password(uint8_t *password, uint8_t keyword_read[]) // Função pa
     if (keyword_read[i] != password[i]) // Verifica cada elemento da sequência com a senha
       return false;                     // Se houver uma diferença, retorna falso
   }
-  return true;                          // Se a sequência corresponder à senha, retorna verdadeiro
-}                                       //fim check_password
+  return true; // Se a sequência corresponder à senha, retorna verdadeiro
+} //fim check_password
 
 
 
@@ -303,7 +301,7 @@ void reading(void)
 
     int i = 0;
     int j = 1;
-
+    // Vamos repetir a animação algumas vezes para criar o efeito de loop
 
     for (int i = 0; i < numDots; ++i)
     {
@@ -516,7 +514,6 @@ void invalid_keyword(void){
   tft.setCursor(set_cursorEX, set_cursorEY);
   tft.println("PASSWORD");
 
-
-  disp_asterisk(true);
+  _delay_ms(1000);
 
 }
