@@ -1,12 +1,12 @@
-<h1 align="center">CONTROLE DE SISTEMAS VIA DTMF</h1>
+<h1 align="center">DTMF SYSTEM CONTROL</h1>
 
 ---
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Ativo-4B0082?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status Ativo">
-  <img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-blue.svg?style=for-the-badge&logo=mit&logoColor=white" alt="Licença MIT">
-  <img src="https://img.shields.io/badge/Universidade-PUC%20MINAS-00599C?style=for-the-badge" alt="Universidade PUC MINAS">
-  <img src="https://img.shields.io/badge/Microcontrolador-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Microcontrolador">
-  <img src="https://img.shields.io/badge/Sistema%20Embutido-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Sistema Embutido">
+  <img src="https://img.shields.io/badge/Status-Active-4B0082?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status Ativo">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&logo=mit&logoColor=white" alt="Licença MIT">
+  <img src="https://img.shields.io/badge/University-PUC%20MINAS-00599C?style=for-the-badge" alt="Universidade PUC MINAS">
+  <img src="https://img.shields.io/badge/Microcontroller-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Microcontroller">
+  <img src="https://img.shields.io/badge/Embedded%20System-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Embedded System">
 </p>
 
 # Índice
