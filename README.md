@@ -1,54 +1,71 @@
-<h1 align="center">DTMF SYSTEM CONTROL</h1>
+<h1 align="center">CONTROLE DE SISTEMAS VIA DTMF</h1>
 
 ---
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Active-4B0082?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status Ativo">
-  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&logo=mit&logoColor=white" alt="Licença MIT">
-  <img src="https://img.shields.io/badge/University-PUC%20MINAS-00599C?style=for-the-badge" alt="Universidade PUC MINAS">
-  <img src="https://img.shields.io/badge/Microcontroller-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Microcontroller">
-  <img src="https://img.shields.io/badge/Embedded%20System-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Embedded System">
+  <img src="https://img.shields.io/badge/Status-Ativo-4B0082?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status Ativo">
+  <img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-blue.svg?style=for-the-badge&logo=mit&logoColor=white" alt="Licença MIT">
+  <img src="https://img.shields.io/badge/Universidade-PUC%20MINAS-00599C?style=for-the-badge" alt="Universidade PUC MINAS">
+  <img src="https://img.shields.io/badge/Microcontrolador-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Microcontrolador">
+  <img src="https://img.shields.io/badge/Sistema%20Embutido-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Sistema Embutido">
 </p>
 
-# Table of Contents
+# Índice
 
-<!--PLACE HOLDER [ MODIFICANÇÃO EM ANDAMENTO] 
--->
-
-1. [Introduction](#introduction)
-2. [Workflow](#workflow)
-3. [Features](#features)
-4. [Requirements](#requirements)
+1. [Introdução](#introdução)
+2. [Fluxo de Trabalho](#fluxo-de-trabalho)
+3. [Características](#características)
+4. [Requisitos](#requisitos)
 5. [Datasheets](docs/datasheets/)
-6. [Reference Materials](docs/reference-materials/)
+6. [Materiais de Referência](docs/reference-materials/)
 
-<!--7. [Usage](#usage)
-8. [Contributors](#contributors)
-9. [License](#license)
-10. [Acknowledgements](#acknowledgements)
-11. [Support](#support) -->
-## Introduction
+## Introdução
 
-The DTMF System Control project focuses on utilizing DTMF (Dual-Tone Multi-Frequency) modules for remote system control via audio. The project aims to enable users to remotely control devices, such as relays, using DTMF tones generated through audio input.
+O projeto Controle de Sistemas via DTMF foca na utilização de módulos DTMF (Dual-Tone Multi-Frequency) para o controle remoto de sistemas via áudio. O objetivo do projeto é permitir que os usuários controlem remotamente dispositivos, como relés, utilizando tons DTMF gerados através de entrada de áudio.
 
-## Workflow
+## Fluxo de Trabalho
 
-relevant information about the workflow of your project. This might include an explanation of how the DTMF modules are integrated with the Arduino, how to set up and configure the system, testing procedures, etc.
+Neste projeto, o microcontrolador ATmega328P embarcado em uma placa Arduino é integrado com o módulo DTMF MT8870. Esta combinação recebe e decodifica sinais DTMF provenientes de uma entrada P2 no módulo. O sistema é capaz de acionar relés com base nos códigos DTMF recebidos, executando tarefas conforme os comandos enviados. O projeto também possui um protótipo que utiliza o display ST7789 para simular uma ativação por senha, onde o sinal DTMF recebido é exibido no display e comparado com uma senha registrada no firmware.
 
-## Features
+## Características
 
-- **Remote Control:** Enables remote control of devices via DTMF tones.
-- **Arduino Integration:** Utilizes Arduino microcontroller for processing DTMF signals.
-- **Customizable:** Easily adaptable for controlling various devices and applications.
-- **User-Friendly:** Simple interface for inputting DTMF commands via audio.
+- **Controle Remoto:** Permite o controle remoto de dispositivos via tons DTMF.
+- **Integração com Arduino:** Utiliza microcontrolador Arduino para processar sinais DTMF.
+- **Personalizável:** Facilmente adaptável para controlar diversos dispositivos e aplicações.
+- **Interface Amigável:** Interface simples para entrada de comandos DTMF via áudio.
 
-## Requirements
+## Requisitos
 
-- **Hardware:** DTMF module, Arduino (e.g., ATmega328P), audio input/output device.
-- **Software:** Arduino IDE, VSCode (PlatformIO), libraries for DTMF decoding.
+- **Hardware:** Módulo DTMF, Arduino (e.g., ATmega328P), dispositivo de entrada/saída de áudio.
+- **Software:** Arduino IDE, VSCode (PlatformIO), bibliotecas para decodificação DTMF.
 
-## Installation
+## Instalação
 
-1. Clone the repository:
+1. Clone o repositório:
 
    ```bash
    git clone https://github.com/yvrcodex/DTMF_SystemControl
+
+2. Abra o projeto no Arduino IDE ou VSCode (PlatformIO).
+
+3. Conecte o hardware conforme especificado na documentação.
+
+4. Compile e carregue o código no Arduino.
+
+5. Teste o sistema enviando tons DTMF através do dispositivo de entrada de áudio.
+
+## Datasheets
+
+- [Datasheet ATmega328P](docs/datasheets/ATmega328P.pdf)
+- [Datasheet MT8870](docs/datasheets/MT8870.pdf)
+
+## Materiais de Referência
+
+- [Documentação do Arduino Uno](https://www.arduino.cc/en/Main/ArduinoBoardUno)
+- [Aplicações e Exemplos Práticos](docs/reference-materials/Aplicacoes_e_Exemplos.pdf)
+
+## Licença
+
+Este projeto é licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Se você tiver alguma dúvida ou encontrar algum problema, por favor, abra uma issue no repositório ou entre em contato através do email fornecido na nossa página de perfil do GitHub.
+
+---
