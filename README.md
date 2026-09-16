@@ -63,6 +63,28 @@ Neste projeto, o microcontrolador ATmega328P embarcado em uma placa Arduino é i
 - [Documentação do Arduino Uno](https://www.arduino.cc/en/Main/ArduinoBoardUno)
 - [Aplicações e Exemplos Práticos](docs/reference-materials/Aplicacoes_e_Exemplos.pdf)
 
+## Displays e Expansão Futura
+
+[#displays-e-expansão-futura](#displays-e-expansão-futura)
+
+O protótipo atual usa um display **ST7789** (SPI, 240x240) para simular a ativação por senha: o tom DTMF recebido é decodificado, mostrado na tela e comparado com a senha registrada no firmware. Nessa versão com ATmega328P, o display roda via `Adafruit_ST7789`, já que a memória e o clock do microcontrolador limitam o uso de bibliotecas mais pesadas.
+
+### Limitações atuais
+
+- Pouca RAM disponível no ATmega328P para buffer de tela, o que restringe animações e atualizações parciais.
+- Sem conectividade — todo o controle depende exclusivamente do áudio DTMF de entrada.
+- Refresh da tela relativamente lento em operações que exigem redesenho completo.
+
+### Planos com ESP32
+
+A ideia é portar o núcleo de decodificação DTMF para um **ESP32**, mantendo o módulo MT8870 como front-end de entrada, e ganhar com isso:
+
+- **LovyanGFX** no lugar da Adafruit_ST7789 — mais rápido no mesmo painel ST7789, com suporte a DMA e double buffering.
+- **Wi-Fi/BLE** para status remoto do sistema (ex: histórico de comandos recebidos, estado dos relés) sem depender só do display local.
+- Mais GPIO disponível para escalar o número de relés controlados.
+- Possibilidade de um painel maior (ex: 320x240 ou touch) já que o ESP32 aguenta o processamento sem gargalar.
+
+
 ## Licença
 
 Este projeto é licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
