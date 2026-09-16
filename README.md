@@ -2,7 +2,7 @@
 
 ---
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Active-4B0082?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status Ativo">
+  <img src="https://img.shields.io/badge/Status-Concluido-4B0082?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status Ativo">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&logo=mit&logoColor=white" alt="Licença MIT">
   <img src="https://img.shields.io/badge/University-PUC%20MINAS-00599C?style=for-the-badge" alt="Universidade PUC MINAS">
   <img src="https://img.shields.io/badge/Microcontroller-4B0082?style=for-the-badge&logo=microchip&logoColor=white" alt="Microcontroller">
