@@ -1,0 +1,77 @@
+EVOLUÇÃO DOS MICROCONTROLADORES — DO ATmega328P AO ESP32-P4
+=============================================================
+
+Este documento contextualiza o hardware usado neste projeto (ATmega328P) 
+dentro da evolução dos microcontroladores até os dias atuais, e serve de 
+referência para a futura migração planejada pra ESP32 (ver seção 
+"Displays e Expansão Futura" do README).
+
+1. ERA 8-BIT — ATmega328P (~2010, geração deste projeto)
+------------------------------------------------------------
+O ATmega328P (usado no Arduino Uno) é um microcontrolador AVR de 8 bits,
+rodando a 16 MHz, com 2 KB de SRAM, 32 KB de flash e 1 KB de EEPROM.
+Simples, previsível, com consumo baixo e um ecossistema gigante — mas
+com restrições sérias de memória, sem periféricos de rede embutidos, e
+sem paralelismo real (um único core, sem FPU).
+
+Foi essa limitação de memória que motivou o uso de uma biblioteca de 
+display leve neste projeto, já que buffers gráficos maiores simplesmente
+não cabem nos 2 KB de RAM disponíveis.
+
+2. TRANSIÇÃO PARA 32-BIT — ARM Cortex-M (~2012–2015)
+------------------------------------------------------------
+Famílias como STM32 (ARM Cortex-M0/M3/M4) popularizaram o 32-bit em 
+preços próximos aos dos AVRs de 8-bit. Isso trouxe clocks mais altos 
+(até centenas de MHz), muito mais RAM/flash, DMA, e periféricos mais 
+sofisticados — mas, na maioria dos casos, ainda sem rádio integrado.
+
+3. WI-FI EMBARCADO — ESP8266 (2014)
+------------------------------------------------------------
+A Espressif lançou o ESP8266: um SoC de baixo custo com Wi-Fi integrado,
+que praticamente inaugurou a onda de "IoT barato" na comunidade maker.
+Single-core Xtensa LX106, ~80 MHz, memória limitada, mas com conectividade
+de fábrica — algo impensável num AVR sem hardware externo.
+
+4. ESP32 — Dual-core + Wi-Fi + Bluetooth (2016)
+------------------------------------------------------------
+Sucessor direto: dual-core Xtensa LX6, até 240 MHz, Wi-Fi + Bluetooth
+Classic/BLE, bem mais RAM, e um leque enorme de periféricos (SPI, I2C,
+I2S, ADC/DAC, PWM, touch capacitivo). É o ponto de partida mais realista 
+pra migrar este projeto: mesmo ecossistema Arduino/PlatformIO, mas com 
+recursos suficientes pra rodar bibliotecas gráficas mais pesadas 
+(LovyanGFX, LVGL) e ainda sobrar CPU pra lógica DTMF + rede.
+
+5. VARIANTES S — ESP32-S2 / S3 (Xtensa LX7)
+------------------------------------------------------------
+Mantêm a arquitetura Xtensa, mas adicionam USB OTG nativo, mais GPIOs,
+instruções de aceleração pra IA/visão computacional (no caso do S3) e
+um coprocessador de baixo consumo mais capaz. O S3 hoje é considerado
+o "all-rounder" da linha: WiFi + BLE maduros, boa performance, ecossistema 
+com menos atrito pra colocar em produção.
+
+6. VIRADA PARA RISC-V (2023 em diante)
+------------------------------------------------------------
+A partir da série C, a Espressif migrou para núcleos RISC-V (ISA aberta,
+sem licenciamento como a ARM/Xtensa):
+
+  - ESP32-C3/C6/C5/C61 — foco em custo e eficiência energética, com 
+    Wi-Fi 6, Bluetooth 5 (LE), e suporte a Thread/Zigbee (802.15.4) nos
+    modelos mais recentes — voltados pra casa inteligente e sensores.
+  - ESP32-H2/H4 — sem Wi-Fi, focados só em Thread/Zigbee, pra dispositivos
+    endpoint de malha (mesh).
+  - ESP32-P4 — três núcleos RISC-V (até 400 MHz), sem rádio, focado em
+    processamento pesado local: visão computacional, interfaces MIPI-CSI/DSI, 
+    ideal pra HMI e displays de alta resolução.
+
+7. ONDE ISSO NOS DEIXA HOJE (2026)
+------------------------------------------------------------
+O ESP32-S3 (Xtensa) ainda é a escolha mais madura e "sem atrito" pra
+projetos que precisam de Wi-Fi + BLE + processamento gráfico — provável
+candidato pra este projeto. Já quase todo lançamento novo da Espressif 
+usa RISC-V, então o ecossistema de ferramentas/toolchains tende a
+convergir pra lá nos próximos anos. Vale considerar isso na escolha do
+chip quando a migração for iniciada, já que impacta suporte de longo
+prazo de bibliotecas e disponibilidade de peças.
+
+Fontes: documentação oficial Espressif (produtos SoC), changelog da
+série ESP32-C/H/P (RISC-V), comparativos técnicos S3 x C6 x P4.
